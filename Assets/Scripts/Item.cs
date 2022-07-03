@@ -4,5 +4,5 @@ using UnityEngine;
 
 public abstract class Item : MonoBehaviour
 {
-    public abstract void Fire(GameObject by);
+	public abstract void Fire(GameObject by);
 }

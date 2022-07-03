@@ -6,92 +6,83 @@ using Random = UnityEngine.Random;
 
 public class HealthBar : MonoBehaviour
 {
-    private float health;
-    
-    public float Health
-    {
-        get
-        {
-            return health;
-        }
-        set
-        {
-            health = value;
+	private float _health;
 
-            var trans = healthBarForeground.transform;
-        
-            {
-                float ratio = health / maxHealth;
-            
-                var scale = trans.localScale;
-                trans.localScale = new Vector3(initialScale * ratio, scale.y, scale.z);
-            }
+	public float Health
+	{
+		get { return _health; }
+		set
+		{
+			_health = value;
 
-            {
-                float diff = trans.localScale.x - initialScale;
+			var trans = healthBarForeground.transform;
 
-                var localPos = trans.localPosition;
+			{
+				float ratio = _health / maxHealth;
 
-                trans.localPosition = new Vector3(diff / 2, localPos.y, localPos.z);
-            }
+				var scale = trans.localScale;
+				trans.localScale = new Vector3(initialScale * ratio, scale.y, scale.z);
+			}
 
-            {
-                float ratio = health / maxHealth;
-                float g = ratio > 0.5f ? 1.0f : 2 * ratio;
-                float r = ratio < 0.5f ? 1.0f : 2 * (1 - ratio);
-                healthBarForeground.GetComponent<SpriteRenderer>().color = 
-                    new Color(r, g,0);
-            }
+			{
+				float diff = trans.localScale.x - initialScale;
 
-            ShowHealthBar();
-        }
-    }
-    public float maxHealth;
+				var localPos = trans.localPosition;
 
-    private float initialScale;
-    private float lastShowTime = 0;
+				trans.localPosition = new Vector3(diff / 2, localPos.y, localPos.z);
+			}
 
-    private void Start()
-    {
-        initialScale = healthBarForeground.transform.localScale.x;
-        
-        HideHealthBar();
-        
-        health = maxHealth;
-    }
-    
-    public GameObject healthBarForeground;
-    public GameObject healthBar;
+			{
+				float ratio = _health / maxHealth;
+				float g = ratio > 0.5f ? 1.0f : 2 * ratio;
+				float r = ratio < 0.5f ? 1.0f : 2 * (1 - ratio);
+				healthBarForeground.GetComponent<SpriteRenderer>().color =
+					new Color(r, g, 0);
+			}
 
-    private void HideHealthBar()
-    {
-        healthBar.SetActive(false);
-    }
+			ShowHealthBar();
+		}
+	}
 
-    private void ShowHealthBar()
-    {
-        healthBar.SetActive(true);
+	public float maxHealth;
 
-        lastShowTime = Time.time;
-    }
+	private float initialScale;
+	private float lastShowTime = 0;
 
-    private void FixedUpdate()
-    {
-        if (healthBar.activeSelf)
-        {
-            if (Time.time - 5 > lastShowTime)
-            {
-                HideHealthBar();
-            }
-        }
-        lastShowTime = Time.time;
-    }
+	private void Start()
+	{
+		initialScale = healthBarForeground.transform.localScale.x;
 
-    private void Update()
-    {
-        if (Random.Range(0, 50) <= 1)
-        {
-            Health = (Random.Range(0.0f, 50.0f));
-        }
-    }
+		HideHealthBar();
+
+		_health = maxHealth;
+	}
+
+	public GameObject healthBarForeground;
+	public GameObject healthBar;
+
+	private void HideHealthBar()
+	{
+		healthBar.SetActive(false);
+	}
+
+	private void ShowHealthBar()
+	{
+		healthBar.SetActive(true);
+
+		lastShowTime = Time.time;
+	}
+
+	private void FixedUpdate()
+	{
+		if (healthBar.activeSelf)
+		{
+			if (Time.time - 5 > lastShowTime)
+			{
+				HideHealthBar();
+			}
+		}
+
+		lastShowTime = Time.time;
+	}
 }

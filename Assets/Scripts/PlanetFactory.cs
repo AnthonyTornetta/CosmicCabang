@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class PlanetFactory : MonoBehaviour
 {
-    void CreatePlanet(int radius, Vector2 position)
-    {
-        
-    }
+	void CreatePlanet(int radius, Vector2 position)
+	{
+	}
 }

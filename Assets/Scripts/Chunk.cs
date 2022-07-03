@@ -8,185 +8,186 @@ using UnityEngine;
 
 public class Chunk
 {
-    public const int WIDTH = 16, HEIGHT = 16;
+	public const int WIDTH = 16, HEIGHT = 16;
 
-    private readonly bool[,] _blocks = new bool[HEIGHT,WIDTH];
+	private readonly bool[,] _blocks = new bool[HEIGHT, WIDTH];
 
-    private readonly float _scale;
+	private readonly float _scale;
 
-    private readonly Vector3 _position;
+	private readonly Vector3 _position;
 
-    private GameObject _gameObject;
-    
-    public Chunk(float scale, Vector3 position)
-    {
-        this._scale = scale;
-        this._position = position;
-    }
+	private GameObject _gameObject;
 
-    public void SetBlock(int x, int y, bool b)
-    {
-        _blocks[y, x] = b;
-    }
+	public Chunk(float scale, Vector3 position)
+	{
+		this._scale = scale;
+		this._position = position;
+	}
 
-    public bool HasBlock(int x, int y)
-    {
-        return _blocks[y, x];
-    }
+	public void SetBlock(int x, int y, bool b)
+	{
+		_blocks[y, x] = b;
+	}
 
-    public void ReRender()
-    {
-        GenerateMesh(null, null);
-    }
-    
-    public void GenerateMesh(Transform parent, Material voxelMaterial)
-    {
-        bool wasNull = !_gameObject;
-        if (wasNull)
-        {
-            _gameObject = new GameObject
-            {
-                name = "Voxel Chunk",
-                transform =
-                {
-                    parent = parent,
-                    localPosition = Vector3.zero
-                }
-            };
-        }
+	public bool HasBlock(int x, int y)
+	{
+		return _blocks[y, x];
+	}
 
-        var mesh = new Mesh();
-        
-        var vertices = new List<Vector3>();
-        var indices = new List<int>();
-        var uvs = new List<Vector2>();
-        var normals = new List<Vector3>();
+	public void ReRender()
+	{
+		GenerateMesh(null, null);
+	}
 
-        float xSize = 1 * _scale;
-        float ySize = 1 * _scale;
+	public void GenerateMesh(Transform parent, Material voxelMaterial)
+	{
+		bool wasNull = !_gameObject;
+		if (wasNull)
+		{
+			_gameObject = new GameObject
+			{
+				name = "Voxel Chunk",
+				transform =
+				{
+					parent = parent,
+					localPosition = Vector3.zero
+				}
+			};
+		}
 
-        float hxSize = xSize * .5f;
-        float hySize = ySize * .5f;
+		var mesh = new Mesh();
 
-        int maxIndex = 0;
+		var vertices = new List<Vector3>();
+		var indices = new List<int>();
+		var uvs = new List<Vector2>();
+		var normals = new List<Vector3>();
 
-        for (int y = 0; y < HEIGHT; y++)
-        {
-            for (int x = 0; x < WIDTH; x++)
-            {
-                if (!HasBlock(x, y))
-                    continue;
-                
-                var upperLeft = (new Vector3(x - hxSize, y - hySize, 0) + _position) * _scale;
-                var index = maxIndex;
-                
-                uvs.Add(Vector2.zero);
-                uvs.Add(Vector3.right);
-                uvs.Add(Vector3.down);
-                uvs.Add(Vector3.down + Vector3.right);
-                
-                vertices.Add(upperLeft);
-                vertices.Add(upperLeft + Vector3.right * xSize);
-                vertices.Add(upperLeft + Vector3.down * ySize);
-                vertices.Add(upperLeft + Vector3.down * ySize + Vector3.right * xSize);
-                
-                normals.Add(Vector3.back);
-                normals.Add(Vector3.back);
-                normals.Add(Vector3.back);
-                normals.Add(Vector3.back);
-                
-                indices.Add(index);
-                indices.Add(index + 1);
-                indices.Add(index + 2);
-                
-                indices.Add(index + 3);
-                indices.Add(index + 2);
-                indices.Add(index + 1);
+		float xSize = 1 * _scale;
+		float ySize = 1 * _scale;
 
-                maxIndex += 4;
-            }
-        }
+		float hxSize = xSize * .5f;
+		float hySize = ySize * .5f;
 
-        mesh.SetVertices(vertices);
-        mesh.SetTriangles(indices, 0);
-        mesh.SetUVs(0, uvs);
-        mesh.SetNormals(normals);
+		int maxIndex = 0;
 
-        if (wasNull)
-        {
-            var meshFilter = _gameObject.AddComponent<MeshFilter>();
-            var meshRenderer = _gameObject.AddComponent<MeshRenderer>();
-            var body = _gameObject.AddComponent<Rigidbody2D>();
-            body.bodyType = RigidbodyType2D.Static;
-            
-            var compositeCollider2D = _gameObject.AddComponent<CompositeCollider2D>();
-            compositeCollider2D.generationType = CompositeCollider2D.GenerationType.Manual;
-            compositeCollider2D.vertexDistance = 0.005f;
+		for (int y = 0; y < HEIGHT; y++)
+		{
+			for (int x = 0; x < WIDTH; x++)
+			{
+				if (!HasBlock(x, y))
+					continue;
 
-            meshRenderer.material = voxelMaterial;
+				var upperLeft = (new Vector3(x - hxSize, y - hySize, 0) + _position) * _scale;
+				var index = maxIndex;
 
-            meshFilter.mesh = mesh;
+				uvs.Add(Vector2.zero);
+				uvs.Add(Vector3.right);
+				uvs.Add(Vector3.down);
+				uvs.Add(Vector3.down + Vector3.right);
 
-            GenerateColliders(compositeCollider2D);
-        }
-        else
-        {
-            var filter = _gameObject.GetComponent<MeshFilter>();
-            
-            Object.Destroy(filter.mesh);
-            filter.mesh = mesh;
+				vertices.Add(upperLeft);
+				vertices.Add(upperLeft + Vector3.right * xSize);
+				vertices.Add(upperLeft + Vector3.down * ySize);
+				vertices.Add(upperLeft + Vector3.down * ySize + Vector3.right * xSize);
 
-            var comps = _gameObject.GetComponents<BoxCollider2D>();
+				normals.Add(Vector3.back);
+				normals.Add(Vector3.back);
+				normals.Add(Vector3.back);
+				normals.Add(Vector3.back);
 
-            foreach(var comp in comps)
-                Object.Destroy(comp);
-            
-            GenerateColliders(_gameObject.GetComponent<CompositeCollider2D>());
-        }
-    }
+				indices.Add(index);
+				indices.Add(index + 1);
+				indices.Add(index + 2);
 
-    bool IsFull()
-    {
-        for (int y = 0; y < HEIGHT; y++)
-        {
-            for (int x = 0; x < WIDTH; x++)
-            {
-                if (!HasBlock(x, y))
-                    return false;
-            }
-        }
+				indices.Add(index + 3);
+				indices.Add(index + 2);
+				indices.Add(index + 1);
 
-        return true;
-    }
+				maxIndex += 4;
+			}
+		}
 
-    void GenerateColliders(CompositeCollider2D compositeCollider2D)
-    {
-        // A quick optimization so full chunks are faster
-        if (IsFull())
-        {
-            var collider = _gameObject.AddComponent<BoxCollider2D>();
-            collider.offset = new Vector2( WIDTH / 2.0f * _scale + _position.x * _scale, -_scale + HEIGHT / 2.0f * _scale + _position.y * _scale);
-            collider.size = new Vector2(_scale * WIDTH, _scale * HEIGHT);
-            collider.usedByComposite = true;
-        }
-        else
-        {
-            for (int y = 0; y < HEIGHT; y++)
-            {
-                for (int x = 0; x < WIDTH; x++)
-                {
-                    if(!HasBlock(x, y))
-                        continue;
-                    
-                    var collider = _gameObject.AddComponent<BoxCollider2D>();
-                    collider.offset = new Vector2(_scale / 2 + x * _scale + _position.x * _scale,
-                        -_scale / 2 + y * _scale + _position.y * _scale);
-                    collider.size = new Vector2(_scale, _scale);
-                    collider.usedByComposite = true;
-                }
-            }
-        }
+		mesh.SetVertices(vertices);
+		mesh.SetTriangles(indices, 0);
+		mesh.SetUVs(0, uvs);
+		mesh.SetNormals(normals);
 
-        compositeCollider2D.GenerateGeometry();
-    }
+		if (wasNull)
+		{
+			var meshFilter = _gameObject.AddComponent<MeshFilter>();
+			var meshRenderer = _gameObject.AddComponent<MeshRenderer>();
+			var body = _gameObject.AddComponent<Rigidbody2D>();
+			body.bodyType = RigidbodyType2D.Static;
+
+			var compositeCollider2D = _gameObject.AddComponent<CompositeCollider2D>();
+			compositeCollider2D.generationType = CompositeCollider2D.GenerationType.Manual;
+			compositeCollider2D.vertexDistance = 0.005f;
+
+			meshRenderer.material = voxelMaterial;
+
+			meshFilter.mesh = mesh;
+
+			GenerateColliders(compositeCollider2D);
+		}
+		else
+		{
+			var filter = _gameObject.GetComponent<MeshFilter>();
+
+			Object.Destroy(filter.mesh);
+			filter.mesh = mesh;
+
+			var comps = _gameObject.GetComponents<BoxCollider2D>();
+
+			foreach (var comp in comps)
+				Object.Destroy(comp);
+
+			GenerateColliders(_gameObject.GetComponent<CompositeCollider2D>());
+		}
+	}
+
+	bool IsFull()
+	{
+		for (int y = 0; y < HEIGHT; y++)
+		{
+			for (int x = 0; x < WIDTH; x++)
+			{
+				if (!HasBlock(x, y))
+					return false;
+			}
+		}
+
+		return true;
+	}
+
+	void GenerateColliders(CompositeCollider2D compositeCollider2D)
+	{
+		// A quick optimization so full chunks are faster
+		if (IsFull())
+		{
+			var collider = _gameObject.AddComponent<BoxCollider2D>();
+			collider.offset = new Vector2(WIDTH / 2.0f * _scale + _position.x * _scale,
+				-_scale + HEIGHT / 2.0f * _scale + _position.y * _scale);
+			collider.size = new Vector2(_scale * WIDTH, _scale * HEIGHT);
+			collider.usedByComposite = true;
+		}
+		else
+		{
+			for (int y = 0; y < HEIGHT; y++)
+			{
+				for (int x = 0; x < WIDTH; x++)
+				{
+					if (!HasBlock(x, y))
+						continue;
+
+					var collider = _gameObject.AddComponent<BoxCollider2D>();
+					collider.offset = new Vector2(_scale / 2 + x * _scale + _position.x * _scale,
+						-_scale / 2 + y * _scale + _position.y * _scale);
+					collider.size = new Vector2(_scale, _scale);
+					collider.usedByComposite = true;
+				}
+			}
+		}
+
+		compositeCollider2D.GenerateGeometry();
+	}
 }
