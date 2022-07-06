@@ -24,15 +24,15 @@ public class AttractedToPlanets : MonoBehaviour
 			Vector3 diff = pair.Key.transform.position - transform.position;
 
 			// Prevents stuff going crazy once it's inside
-			float ratio = 1 - (pair.Value.blocksRadius * pair.Value.scale - diff.magnitude) /
-				(pair.Value.blocksRadius * pair.Value.scale);
+			float ratio = 1 - (pair.Value.Radius - diff.magnitude) /
+				(pair.Value.Radius);
 			if (ratio > 1)
 				ratio = 1;
 
 			if (ratio == 0)
 				continue;
 
-			float force = _body.mass * ratio * ratio * pair.Value.GetMass() * G / diff.sqrMagnitude;
+			float force = _body.mass * ratio * ratio * pair.Value.Mass * G / diff.sqrMagnitude;
 			_body.AddForce(force * diff.normalized);
 		}
 	}

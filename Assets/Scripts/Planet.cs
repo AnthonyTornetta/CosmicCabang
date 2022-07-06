@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
-public class Planet : MonoBehaviour
+public class Planet : MonoBehaviour, IHasGravity
 {
 	// Start is called before the first frame update
 
@@ -19,9 +19,11 @@ public class Planet : MonoBehaviour
 	public float scale = SCALE;
 
 	private HasChunks _chunks;
+	
+	public float Mass { get; private set; }
 
-	private float mass;
-
+	public float Radius => blocksRadius * scale;
+	
 	// private QuadTree _quadTree;
 
 	private void Start()
@@ -30,13 +32,9 @@ public class Planet : MonoBehaviour
 
 		int chunksAmt = (int)Math.Ceiling(blocksRadius * 2 / (double)Chunk.WIDTH);
 
-		// _quadTree = new QuadTree(blocksRadius * 2, Vector2.zero, transform);
-
 		_chunks.Init(chunksAmt, chunksAmt, scale);
 
 		GenerateMesh();
-
-		// _quadTree.Init();
 	}
 
 	private void OnDrawGizmos()
@@ -79,9 +77,9 @@ public class Planet : MonoBehaviour
 			return;
 
 		if (!b)
-			mass -= 20;
+			Mass -= 20;
 		else
-			mass += 20;
+			Mass += 20;
 
 		_chunks.SetBlock(x, y, b);
 		// _quadTree.SetBlock(x, y, b);
@@ -90,11 +88,6 @@ public class Planet : MonoBehaviour
 	public bool HasBlock(int x, int y)
 	{
 		return _chunks.HasBlock(x, y);
-	}
-
-	public float GetMass()
-	{
-		return mass;
 	}
 
 	private void GenerateMesh()

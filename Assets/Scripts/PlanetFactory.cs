@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class PlanetFactory : MonoBehaviour
 {
-	void CreatePlanet(int radius, Vector2 position)
+	public static void CreatePlanet(int radius, Vector2 position, GameObject planetPrefab)
 	{
+		var go = Instantiate(planetPrefab, position, Quaternion.identity);
+		var planet = go.GetComponent<Planet>();
+		planet.blocksRadius = radius;
 	}
 }

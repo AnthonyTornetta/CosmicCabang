@@ -3,12 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
 {
-	public Dictionary<GameObject, Planet> HaveGravities { get; private set; }
+	public Dictionary<GameObject, IHasGravity> HaveGravities { get; private set; }
 
 	public GameObject gun;
+
+	public GameObject planetPrefab;
 
 	[SerializeField] private GameObject activePlayer;
 
@@ -20,13 +23,18 @@ public class GameController : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
 	{
-		HaveGravities = new Dictionary<GameObject, Planet>();
+		for (int i = 0; i < 10; i++)
+		{
+			PlanetFactory.CreatePlanet(Random.Range(30, 50), new Vector2(Random.Range(-40.0f, 40.0f), Random.Range(-40.0f, 40.0f)), planetPrefab);
+		}
+		
+		HaveGravities = new Dictionary<GameObject, IHasGravity>();
 
 		foreach (var obj in GameObject.FindGameObjectsWithTag("HasGravity"))
 		{
-			var planet = obj.GetComponent<Planet>();
-			if (planet != null)
-				HaveGravities.Add(obj, planet);
+			var gravity = obj.GetComponent<IHasGravity>();
+			if (gravity != null)
+				HaveGravities.Add(obj, gravity);
 		}
 	}
 
@@ -35,7 +43,7 @@ public class GameController : MonoBehaviour
 	{
 		if (Input.GetMouseButtonDown(0) && ActivePlayer != null)
 		{
-			Meeple meeple = ActivePlayer.GetComponent<Meeple>();
+			var meeple = ActivePlayer.GetComponent<Meeple>();
 			if (meeple.HasItem())
 				meeple.HeldItem.GetComponent<Item>().Fire(ActivePlayer);
 		}
